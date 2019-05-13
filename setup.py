@@ -5,27 +5,20 @@ try:
 except ImportError:
     from distutils.core import setup
 
-import radius
-
-name = 'py-radius'
-version = radius.__version__
-release = '1'
-versrel = version + '-' + release
-
 with open('LICENSE', 'r') as l:
     license = l.read()
 
 setup(
-    name = name,
-    version = versrel,
+    name = 'radius',
+    version = '0.0.2',
     description = 'RADIUS authentication module',
     long_description = 'A pure Python module that implements client side RADIUS ' \
                        'authentication, as defined by RFC2865.',
     author = 'Stuart Bishop',
     author_email = 'zen@shangri-la.dropbear.id.au',
-    maintainer = 'Ben Timby',
-    maintainer_email = 'btimby@gmail.com',
-    url = 'https://github.com/btimby/' + name + '/',
+    maintainer = 'Osirium',
+    maintainer_email = 'thomas.grainger@osirium.net',
+    url = 'https://github.com/Osirium/py-radius/',
     license = license,
     py_modules = ["radius"],
     classifiers = [
