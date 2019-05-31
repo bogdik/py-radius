@@ -1,4 +1,4 @@
-0.0.4 (unreleased)
+0.0.4 (2019-05-31)
 ------------------
 
 - Now logs the correct number of attempts.

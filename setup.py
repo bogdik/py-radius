@@ -10,7 +10,7 @@ with open('README.rst', 'r') as rm:
 
 setup(
     name = 'radius',
-    version = '0.0.3',
+    version='0.0.4',
     description = 'RADIUS authentication module',
     long_description=long_description,
     author = 'Stuart Bishop',
