@@ -144,6 +144,8 @@ ATTR_PORT_LIMIT = 62
 ATTR_LOGIN_LAT_PORT = 63
 # For RSA Authentication Manager
 ATTR_PROMPT = 76
+ATTR_ACC_STATUS_TYPE = 40
+ATTR_ACC_SESSION_ID = 44
 
 ATTRS = {
     ATTR_USER_NAME: 'User-Name',
@@ -188,12 +190,13 @@ ATTRS = {
     ATTR_PORT_LIMIT: 'Port-Limit',
     ATTR_LOGIN_LAT_PORT: 'Login-LAT-Port',
     ATTR_PROMPT: 'Prompt',
+    ATTR_ACC_STATUS_TYPE:'Acct-Status-Type',
+    ATTR_ACC_SESSION_ID:'Acct-Session-Id'
 }
 
 # Map from name to id.
 ATTR_NAMES = {v.lower(): k for k, v in ATTRS.items()}
 # -------------------------------
-
 
 class Error(Exception):
     """
@@ -449,6 +452,8 @@ class Message(object):
         # First pack the attributes, since we need to know their length.
         attrs = self.attributes.pack()
         data = []
+        if self.code==CODE_ACCOUNTING_REQUEST:
+             self.authenticator= md5(struct.pack('!BBH16s', self.code, self.id, len(attrs) + 20, self.authenticator)[0:4] + b'\0'*16 +  attrs + self.secret).digest()
         # Now pack the code, id, total length, authenticator
         data.append(struct.pack('!BBH16s', self.code, self.id,
                     len(attrs) + 20, self.authenticator))
@@ -615,6 +620,22 @@ class Radius(object):
         LOGGER.info('Access rejected')
         return False
 
+    def accounting_request_message(self, username, sessionId, status, **kwargs):
+        statuses={'Start':1,'Stop':2,'Updade':3,'Interim-Update':3,'On':7,'Accounting-On':7,'Off':8,'Accounting-Off':8}
+        username = bytes_safe(username)
+        message = Message(self.secret, CODE_ACCOUNTING_REQUEST, **kwargs)
+        message.attributes['User-Name'] = username
+        message.attributes['Acct-Session-Id'] = str(sessionId)
+        message.attributes['Acct-Status-Type'] = struct.pack(">I", statuses[status])
+        return message
+
+    def accounting(self, username, sessionId, status, **kwargs):
+        reply = self.send_message(self.accounting_request_message(username, sessionId, status, **kwargs))
+        if reply.code == CODE_ACCOUNTING_RESPONSE:
+             LOGGER.info('Accounting success')
+             return True
+        LOGGER.info('Accounting error')
+        return False
 
 # Don't break code written for radius.py distributed with the ZRadius
 # Zope product
