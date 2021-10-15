@@ -58,6 +58,15 @@ Here is an example of using the library.
 
     r = radius.Radius(secret, host='radius', port=1812)
     print('success' if r.authenticate(username, password) else 'failure')
+    
+    Accounting Request:
+    
+    radius.accounting(secret, username, sessionId, status, host='radius', port=1813)
+    
+    # - OR -
+
+    r = radius.Radius(secret, host='radius', port=1813)
+    print('success' if r.authenticate(username, sessionId, status) else 'failure')
 
 If your RADIUS server requires challenge/response, the usage is a bit more
 complex.
